@@ -20,7 +20,7 @@ class Wheel:
         self._name = os.path.basename(path)
 
     def __repr__(self):
-        return "<%s(name=%s, plat=%s, arch=%s, pyver=%s)>" % (
+        return "<{}(name={}, plat={}, arch={}, pyver={})>".format(
             self.__class__.__name__,
             self.name,
             self.platform(),
@@ -54,7 +54,7 @@ class Wheel:
             else:
                 return 'macos'
         else:
-            raise ValueError("unknown platform %r" % self.name)
+            raise ValueError(f"unknown platform {self.name!r}")
 
     def arch(self):
         if self.name.endswith(('x86_64.whl', 'amd64.whl')):
@@ -106,20 +106,20 @@ def main():
         elif path.endswith(".tar.gz"):
             pkg = Tarball(path)
         else:
-            raise ValueError("invalid package %r" % path)
+            raise ValueError(f"invalid package {path!r}")
         groups[pkg.platform()].append(pkg)
 
     tot_files = 0
     tot_size = 0
-    templ = "%-120s %7s %8s %7s"
+    templ = "{:<120} {:>7} {:>8} {:>7}"
     for platf, pkgs in groups.items():
-        ppn = "%s (%s)" % (platf, len(pkgs))
-        s = templ % (ppn, "size", "arch", "pyver")
+        ppn = f"{platf} ({len(pkgs)})"
+        s = templ.format(ppn, "size", "arch", "pyver")
         print_color('\n' + s, color=None, bold=True)
         for pkg in sorted(pkgs, key=lambda x: x.name):
             tot_files += 1
             tot_size += pkg.size()
-            s = templ % (
+            s = templ.format(
                 "  " + pkg.name,
                 bytes2human(pkg.size()),
                 pkg.arch(),
@@ -131,7 +131,7 @@ def main():
                 print_color(s, color='brown')
 
     print_color(
-        "\n\ntotals: files=%s, size=%s" % (tot_files, bytes2human(tot_size)),
+        f"\n\ntotals: files={tot_files}, size={bytes2human(tot_size)}",
         bold=True,
     )
 

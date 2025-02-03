@@ -68,8 +68,6 @@ memory_full_info                 300      0.07066
 memory_maps                      300      0.74281
 """
 
-from __future__ import division
-from __future__ import print_function
 
 import argparse
 import inspect
@@ -83,11 +81,11 @@ from psutil._common import print_color
 
 TIMES = 300
 timings = []
-templ = "%-25s %10s   %10s"
+templ = "{:<25} {:>10}   {:>10}"
 
 
 def print_header(what):
-    s = templ % (what, "NUM CALLS", "SECONDS")
+    s = templ.format(what, "NUM CALLS", "SECONDS")
     print_color(s, color=None, bold=True)
     print("-" * len(s))
 
@@ -97,7 +95,7 @@ def print_timings():
     i = 0
     while timings[:]:
         title, times, elapsed = timings.pop(0)
-        s = templ % (title, str(times), "%.5f" % elapsed)
+        s = templ.format(title, str(times), f"{elapsed:.5f}")
         if i > len(timings) - 5:
             print_color(s, color="red")
         else:
@@ -105,7 +103,7 @@ def print_timings():
 
 
 def timecall(title, fun, *args, **kw):
-    print("%-50s" % title, end="")
+    print("{:<50}".format(title), end="")
     sys.stdout.flush()
     t = timer()
     for n in range(TIMES):
@@ -193,7 +191,6 @@ def main():
         'as_dict',
         'parent',
         'parents',
-        'memory_info_ex',
         'oneshot',
         'pid',
         'rlimit',

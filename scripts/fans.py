@@ -11,7 +11,6 @@ asus
     cpu_fan              3200 RPM
 """
 
-from __future__ import print_function
 
 import sys
 
@@ -24,11 +23,13 @@ def main():
     fans = psutil.sensors_fans()
     if not fans:
         print("no fans detected")
-        return
+        return None
     for name, entries in fans.items():
         print(name)
         for entry in entries:
-            print("    %-20s %s RPM" % (entry.label or name, entry.current))
+            print(
+                "    {:<20} {} RPM".format(entry.label or name, entry.current)
+            )
         print()
 
 

@@ -37,8 +37,8 @@ proto_map = {
 
 
 def main():
-    templ = "%-5s %-30s %-30s %-13s %-6s %s"
-    header = templ % (
+    templ = "{:<5} {:<30} {:<30} {:<13} {:<6} {}"
+    header = templ.format(
         "Proto",
         "Local address",
         "Remote address",
@@ -51,12 +51,12 @@ def main():
     for p in psutil.process_iter(['pid', 'name']):
         proc_names[p.info['pid']] = p.info['name']
     for c in psutil.net_connections(kind='inet'):
-        laddr = "%s:%s" % (c.laddr)
+        laddr = "{}:{}".format(*c.laddr)
         raddr = ""
         if c.raddr:
-            raddr = "%s:%s" % (c.raddr)
+            raddr = "{}:{}".format(*c.raddr)
         name = proc_names.get(c.pid, '?') or ''
-        line = templ % (
+        line = templ.format(
             proto_map[(c.family, c.type)],
             laddr,
             raddr or AD,

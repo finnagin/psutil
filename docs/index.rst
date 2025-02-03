@@ -224,8 +224,8 @@ CPU
 
 .. function:: cpu_count(logical=True)
 
-  Return the number of logical CPUs in the system (same as `os.cpu_count`_
-  in Python 3.4) or ``None`` if undetermined.
+  Return the number of logical CPUs in the system (same as `os.cpu_count`_)
+  or ``None`` if undetermined.
   "logical CPUs" means the number of physical cores multiplied by the number
   of threads that can run on each core (this is known as Hyper Threading).
   If *logical* is ``False`` return the number of physical cores only, or
@@ -734,6 +734,9 @@ Network
   .. versionchanged:: 4.4.0 added support for *netmask* field on Windows which
     is no longer ``None``.
 
+  .. versionchanged:: 7.0.0 added support for *broadcast* field on Windows
+    which is no longer ``None``.
+
 .. function:: net_if_stats()
 
   Return information about each NIC (network interface card) installed on the
@@ -1203,7 +1206,7 @@ Process class
 
     >>> import psutil
     >>> psutil.Process().exe()
-    '/usr/bin/python2.7'
+    '/usr/bin/python3'
 
   .. method:: cmdline()
 
@@ -1705,13 +1708,6 @@ Process class
 
     .. versionchanged::
       4.0.0 multiple fields are returned, not only `rss` and `vms`.
-
-  .. method:: memory_info_ex()
-
-    Same as :meth:`memory_info` (deprecated).
-
-    .. warning::
-      deprecated in version 4.0.0; use :meth:`memory_info` instead.
 
   .. method:: memory_full_info()
 
@@ -2637,6 +2633,18 @@ On Windows:
   set PSUTIL_DEBUG=1 python.exe script.py
   psutil-debug [psutil/arch/windows/proc.c:90]> NtWow64ReadVirtualMemory64(pbi64.PebBaseAddress) -> 998 (Unknown error) (ignored)
 
+Python 2.7
+==========
+
+Latest version spporting Python 2.7 is `psutil 6.1.1 <https://pypi.org/project/psutil/6.1.1/>`__.
+The 6.1.X serie may receive critical bug-fixes but no new features. It will
+be maintained in the dedicated
+`python2 <https://github.com/giampaolo/psutil/tree/python2>`__ branch.
+To install it:
+
+::
+
+    $ python2 -m pip install psutil==6.1.*
 
 Security
 ========
@@ -2672,6 +2680,10 @@ PyPy3.
 Timeline
 ========
 
+- 2024-12-19:
+  `6.1.1 <https://pypi.org/project/psutil/6.1.1/#files>`__ -
+  `what's new <https://github.com/giampaolo/psutil/blob/master/HISTORY.rst#611>`__ -
+  `diff <https://github.com/giampaolo/psutil/compare/release-6.1.0...release-6.1.1#files_bucket>`__
 - 2024-10-17:
   `6.1.0 <https://pypi.org/project/psutil/6.1.0/#files>`__ -
   `what's new <https://github.com/giampaolo/psutil/blob/master/HISTORY.rst#610>`__ -

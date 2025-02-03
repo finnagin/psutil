@@ -38,7 +38,6 @@ Using [1] with some modifications for including ftp
 Author: Himanshu Shekhar <https://github.com/himanshub16> (2017)
 """
 
-from __future__ import print_function
 
 import argparse
 import concurrent.futures
@@ -93,7 +92,7 @@ def sanitize_url(url):
 
 def find_urls(s):
     matches = REGEX.findall(s) or []
-    return list(set([sanitize_url(x) for x in matches]))
+    return list({sanitize_url(x) for x in matches})
 
 
 def parse_rst(fname):
@@ -123,7 +122,7 @@ def parse_py(fname):
                 subidx = i + 1
                 while True:
                     nextline = lines[subidx].strip()
-                    if re.match('^#     .+', nextline):
+                    if re.match(r"^#     .+", nextline):
                         url += nextline[1:].strip()
                     else:
                         break
@@ -144,7 +143,7 @@ def parse_c(fname):
                 subidx = i + 1
                 while True:
                     nextline = lines[subidx].strip()
-                    if re.match('^//     .+', nextline):
+                    if re.match(r"^//     .+", nextline):
                         url += nextline[2:].strip()
                     else:
                         break
@@ -213,7 +212,7 @@ def parallel_validator(urls):
         }
         for fut in concurrent.futures.as_completed(fut_to_url):
             current += 1
-            sys.stdout.write("\r%s / %s" % (current, total))
+            sys.stdout.write(f"\r{current} / {total}")
             sys.stdout.flush()
             fname, url = fut_to_url[fut]
             try:
@@ -221,7 +220,7 @@ def parallel_validator(urls):
             except Exception:  # noqa: BLE001
                 fails.append((fname, url))
                 print()
-                print("warn: error while validating %s" % url, file=sys.stderr)
+                print(f"warn: error while validating {url}", file=sys.stderr)
                 traceback.print_exc()
             else:
                 if not ok:
@@ -243,9 +242,8 @@ def main():
     for fname in args.files:
         urls = get_urls(fname)
         if urls:
-            print("%4s %s" % (len(urls), fname))
-            for url in urls:
-                all_urls.append((fname, url))
+            print(f"{len(urls):4} {fname}")
+            all_urls.extend((fname, url) for url in urls)
 
     fails = parallel_validator(all_urls)
     if not fails:
@@ -253,9 +251,9 @@ def main():
     else:
         for fail in fails:
             fname, url = fail
-            print("%-30s: %s " % (fname, url))
+            print("{:<30}: {} ".format(fname, url))
         print('-' * 20)
-        print("total: %s fails!" % len(fails))
+        print(f"total: {len(fails)} fails!")
         sys.exit(1)
 
 

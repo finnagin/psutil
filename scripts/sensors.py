@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Copyright (c) 2009, Giampaolo Rodola'. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
@@ -28,7 +27,6 @@ Battery:
     plugged in: yes
 """
 
-from __future__ import print_function
 
 import psutil
 
@@ -36,7 +34,7 @@ import psutil
 def secs2hours(secs):
     mm, ss = divmod(secs, 60)
     hh, mm = divmod(mm, 60)
-    return "%d:%02d:%02d" % (hh, mm, ss)
+    return f"{int(hh)}:{int(mm):02}:{int(ss):02}"
 
 
 def main():
@@ -61,7 +59,7 @@ def main():
         if name in temps:
             print("    Temperatures:")
             for entry in temps[name]:
-                s = "        %-20s %s°C (high=%s°C, critical=%s°C)" % (
+                s = "        {:<20} {}°C (high={}°C, critical={}°C)".format(
                     entry.label or name,
                     entry.current,
                     entry.high,
@@ -73,23 +71,25 @@ def main():
             print("    Fans:")
             for entry in fans[name]:
                 print(
-                    "        %-20s %s RPM"
-                    % (entry.label or name, entry.current)
+                    "        {:<20} {} RPM".format(
+                        entry.label or name, entry.current
+                    )
                 )
 
     # Battery.
     if battery:
         print("Battery:")
-        print("    charge:     %s%%" % round(battery.percent, 2))
+        print(f"    charge:     {round(battery.percent, 2)}%")
         if battery.power_plugged:
             print(
-                "    status:     %s"
-                % ("charging" if battery.percent < 100 else "fully charged")
+                "    status:     {}".format(
+                    "charging" if battery.percent < 100 else "fully charged"
+                )
             )
             print("    plugged in: yes")
         else:
-            print("    left:       %s" % secs2hours(battery.secsleft))
-            print("    status:     %s" % "discharging")
+            print(f"    left:       {secs2hours(battery.secsleft)}")
+            print("    status:     discharging")
             print("    plugged in: no")
 
 

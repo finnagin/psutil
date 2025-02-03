@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (c) 2009, Giampaolo Rodola'. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -86,7 +84,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = PROJECT_NAME
-copyright = '2009-%s, %s' % (THIS_YEAR, AUTHOR)
+copyright = f"2009-{THIS_YEAR}, {AUTHOR}"
 author = AUTHOR
 
 # The version info for the project you're documenting, acts as replacement for
@@ -269,7 +267,7 @@ html_static_path = ['_static']
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = '%s-doc' % PROJECT_NAME
+htmlhelp_basename = f"{PROJECT_NAME}-doc"
 
 # -- Options for LaTeX output ---------------------------------------------
 

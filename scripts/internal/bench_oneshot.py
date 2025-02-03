@@ -9,8 +9,6 @@ Process.oneshot() ctx manager.
 See: https://github.com/giampaolo/psutil/issues/799.
 """
 
-from __future__ import division
-from __future__ import print_function
 
 import sys
 import textwrap
@@ -33,8 +31,7 @@ names = [
 ]
 
 if psutil.POSIX:
-    names.append('uids')
-    names.append('username')
+    names.extend(('uids', 'username'))
 
 if psutil.LINUX:
     names += [
@@ -128,8 +125,9 @@ setup = textwrap.dedent("""
 
 def main():
     print(
-        "%s methods involved on platform %r (%s iterations, psutil %s):"
-        % (len(names), sys.platform, ITERATIONS, psutil.__version__)
+        f"{len(names)} methods involved on platform"
+        f" {sys.platform!r} ({ITERATIONS} iterations, psutil"
+        f" {psutil.__version__}):"
     )
     for name in sorted(names):
         print("    " + name)
@@ -138,19 +136,19 @@ def main():
     elapsed1 = timeit.timeit(
         "call_normal(funs)", setup=setup, number=ITERATIONS
     )
-    print("normal:  %.3f secs" % elapsed1)
+    print(f"normal:  {elapsed1:.3f} secs")
 
     # "one shot" run
     elapsed2 = timeit.timeit(
         "call_oneshot(funs)", setup=setup, number=ITERATIONS
     )
-    print("onshot:  %.3f secs" % elapsed2)
+    print(f"onshot:  {elapsed2:.3f} secs")
 
     # done
     if elapsed2 < elapsed1:
-        print("speedup: +%.2fx" % (elapsed1 / elapsed2))
+        print(f"speedup: +{elapsed1 / elapsed2:.2f}x")
     elif elapsed2 > elapsed1:
-        print("slowdown: -%.2fx" % (elapsed2 / elapsed1))
+        print(f"slowdown: -{elapsed2 / elapsed1:.2f}x")
     else:
         print("same speed")
 

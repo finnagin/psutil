@@ -1,8 +1,7 @@
 # Runs CI tests and generates wheels on the following platforms:
-#
-# * Linux (py2 and py3)
-# * macOS (py2 and py3)
-# * Windows (py3, py2 is done by appveyor)
+# * Linux
+# * macOS
+# * Windows
 #
 # Useful URLs:
 # * https://github.com/pypa/cibuildwheel
@@ -16,9 +15,10 @@ concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && github.sha || '' }}
   cancel-in-progress: true
 jobs:
-  # Linux + macOS + Windows Python 3
-  py3:
-    name: "py3, ${{ matrix.os }}, ${{ matrix.arch }}"
+
+  # Run tests on Linux, macOS, Windows
+  tests:
+    name: "tests, ${{ matrix.os }}, ${{ matrix.arch }}"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
@@ -27,8 +27,8 @@ jobs:
         include:
         - {os: ubuntu-latest, arch: x86_64}
         - {os: ubuntu-latest, arch: i686}
-        - {os: ubuntu-latest, arch: aarch64}
-        - {os: macos-12, arch: x86_64}
+        - {os: ubuntu-24.04-arm, arch: aarch64}
+        - {os: macos-13, arch: x86_64}
         - {os: macos-14, arch: arm64}
         - {os: windows-2019, arch: AMD64}
         - {os: windows-2019, arch: x86}
@@ -49,23 +49,16 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-      if: matrix.arch == 'aarch64'
-
     - name: Create wheels + run tests
-      uses: pypa/cibuildwheel@v2.21.2
+      uses: pypa/cibuildwheel@v2.22.0
       env:
         CIBW_ARCHS: "${{ matrix.arch }}"
-        CIBW_PRERELEASE_PYTHONS: True
-        CIBW_TEST_EXTRAS: test
-        CIBW_TEST_COMMAND:
-          make -C {project} PYTHON="env python" PSUTIL_SCRIPTS_DIR="{project}/scripts" install-sysdeps install-pydeps-test install print-sysinfo test test-memleaks
+        CIBW_ENABLE: "${{ startsWith(github.ref, 'refs/tags/') && '' || 'cpython-prerelease' }}"
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: wheels-py3-${{ matrix.os }}-${{ matrix.arch }}
+        name: wheels-${{ matrix.os }}-${{ matrix.arch }}
         path: wheelhouse
 
     - name: Generate .tar.gz
@@ -75,42 +68,19 @@ jobs:
         python setup.py sdist
         mv dist/psutil*.tar.gz wheelhouse/
 
-  # Linux + macOS + Python 2
-  py2:
-    name: py2, ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  # Test python 2.7 fallback installation message produced by setup.py
+  py2-fallback:
+    name: py2.7 setup.py check
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-12]
-    env:
-      CIBW_BUILD: 'cp27-*'
-      CIBW_TEST_EXTRAS: test
-      CIBW_TEST_COMMAND:
-        make -C {project} PYTHON="env python" PSUTIL_SCRIPTS_DIR="{project}/scripts" install-sysdeps install-pydeps-test install print-sysinfo test test-memleaks
-
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+    - uses: LizardByte/setup-python-action@master
       with:
-        python-version: 3.9
-
-    - name: Create wheels + run tests
-      uses: pypa/cibuildwheel@v1.12.0
-
-    - name: Upload wheels
-      uses: actions/upload-artifact@v4
-      with:
-        name: wheels-py2-${{ matrix.os }}
-        path: wheelhouse
-
-    - name: Generate .tar.gz
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        make generate-manifest
-        python setup.py sdist
-        mv dist/psutil*.tar.gz wheelhouse/
+        python-version: '2.7'
+    - run: python scripts/internal/test_python2_setup_py.py
 
   # Run linters
   linters:
@@ -122,12 +92,12 @@ jobs:
         python-version: 3.x
     - name: 'Run linters'
       run: |
-        python3 -m pip install ruff black rstcheck toml-sort sphinx
+        python3 -m pip install ruff black==24.10.0 rstcheck toml-sort sphinx
         make lint-all
 
-  # upload weels as a single artefact
+  # Produce wheels as artifacts.
   upload-wheels:
-    needs: [py2, py3]
+    needs: [tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/upload-artifact/merge@v4

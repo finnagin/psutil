@@ -9,7 +9,6 @@ is created. Assign labels, provide replies, closes issues, etc. depending
 on the situation.
 """
 
-from __future__ import print_function
 
 import functools
 import json
@@ -42,7 +41,7 @@ LABELS_MAP = {
         "windows", "win32", "WinError", "WindowsError", "win10", "win7",
         "win ", "mingw", "msys", "studio", "microsoft", "make.bat",
         "CloseHandle", "GetLastError", "NtQuery", "DLL", "MSVC", "TCHAR",
-        "WCHAR", ".bat", "OpenProcess", "TerminateProcess", "appveyor",
+        "WCHAR", ".bat", "OpenProcess", "TerminateProcess",
         "windows error", "NtWow64", "NTSTATUS", "Visual Studio",
     ],
     "macos": [
@@ -89,7 +88,7 @@ LABELS_MAP = {
     ],
     # tests
     "tests": [
-        " test ", "tests", "travis", "coverage", "cirrus", "appveyor",
+        " test ", "tests", "travis", "coverage", "cirrus",
         "continuous integration", "unittest", "pytest", "unit test",
     ],
     # critical errors
@@ -160,9 +159,10 @@ def get_repo():
 
 @functools.lru_cache()
 def _get_event_data():
-    ret = json.load(open(os.environ["GITHUB_EVENT_PATH"]))
-    pp(ret)
-    return ret
+    with open(os.environ["GITHUB_EVENT_PATH"]) as f:
+        ret = json.load(f)
+        pp(ret)
+        return ret
 
 
 def is_event_new_issue():
@@ -195,29 +195,29 @@ def get_issue():
 
 def log(msg):
     if '\n' in msg or "\r\n" in msg:
-        print(">>>\n%s\n<<<" % msg, flush=True)
+        print(f">>>\n{msg}\n<<<", flush=True)
     else:
-        print(">>> %s <<<" % msg, flush=True)
+        print(f">>> {msg} <<<", flush=True)
 
 
 def add_label(issue, label):
     def should_add(issue, label):
         if has_label(issue, label):
-            log("already has label %r" % (label))
+            log(f"already has label {label!r}")
             return False
 
         for left, right in ILLOGICAL_PAIRS:
             if label == left and has_label(issue, right):
-                log("already has label" % (label))
+                log(f"already has label f{label}")
                 return False
 
         return not has_label(issue, label)
 
     if not should_add(issue, label):
-        log("should not add label %r" % label)
+        log(f"should not add label {label!r}")
         return
 
-    log("add label %r" % label)
+    log(f"add label {label!r}")
     issue.add_to_labels(label)
 
 
@@ -330,16 +330,16 @@ def on_new_pr(issue):
 def main():
     issue = get_issue()
     stype = "PR" if is_pr(issue) else "issue"
-    log("running issue bot for %s %r" % (stype, issue))
+    log(f"running issue bot for {stype} {issue!r}")
 
     if is_event_new_issue():
-        log("created new issue %s" % issue)
+        log(f"created new issue {issue}")
         add_labels_from_text(issue, issue.title)
         if issue.body:
             add_labels_from_new_body(issue, issue.body)
         on_new_issue(issue)
     elif is_event_new_pr():
-        log("created new PR %s" % issue)
+        log(f"created new PR {issue}")
         add_labels_from_text(issue, issue.title)
         if issue.body:
             add_labels_from_new_body(issue, issue.body)

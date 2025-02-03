@@ -1,9 +1,37 @@
 *Bug tracker at https://github.com/giampaolo/psutil/issues*
 
-6.1.1 (IN DEVELOPMENT)
+7.0.0 (IN DEVELOPMENT)
 ======================
 
 XXXX-XX-XX
+
+**Enhancements**
+
+- 669_, [Windows]: `net_if_addrs()`_ also returns the ``broadcast`` address
+  instead of ``None``.
+- 2480_: Python 2.7 is no longer supported. Latest version supporting Python
+  2.7 is psutil 6.1.X. Install it with: ``pip2 install psutil==6.1.*``.
+- 2490_: removed long deprecated ``Process.memory_info_ex()`` method. It was
+  deprecated in psutil 4.0.0, released 8 years ago. Substitute is
+  ``Process.memory_full_info()``.
+
+**Bug fixes**
+
+- 2496_, [Linux]: Avoid segfault (a cPython bug) on ``Process.memory_maps()``
+  for processes that use hundreds of GBs of memory.
+- 2502_, [macOS]: `virtual_memory()`_ now relies on ``host_statistics64``
+  instead of ``host_statistics``. This is the same approach used by ``vm_stat``
+  CLI tool, and should grant more accurate results.
+
+**Compatibility notes**
+
+- 2480_: Python 2.7 is no longer supported.
+- 2490_: removed long deprecated ``Process.memory_info_ex()`` method.
+
+6.1.1
+=====
+
+2024-12-19
 
 **Enhancements**
 

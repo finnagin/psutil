@@ -21,11 +21,11 @@ def main():
     users = psutil.users()
     for user in users:
         proc_name = psutil.Process(user.pid).name() if user.pid else ""
-        line = "%-12s %-10s %-10s %-14s %s" % (
+        line = "{:<12} {:<10} {:<10} {:<14} {}".format(
             user.name,
             user.terminal or '-',
             datetime.fromtimestamp(user.started).strftime("%Y-%m-%d %H:%M"),
-            "(%s)" % user.host if user.host else "",
+            f"({user.host or ''})",
             proc_name,
         )
         print(line)

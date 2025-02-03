@@ -129,13 +129,15 @@ def print_header(procs_status, num_procs):
     percs = psutil.cpu_percent(interval=0, percpu=True)
     for cpu_num, perc in enumerate(percs):
         dashes, empty_dashes = get_dashes(perc)
-        line = " CPU%-2s [%s%s] %5s%%" % (cpu_num, dashes, empty_dashes, perc)
+        line = " CPU{:<2} [{}{}] {:>5}%".format(
+            cpu_num, dashes, empty_dashes, perc
+        )
         printl(line, color=get_color(perc))
 
     # memory usage
     mem = psutil.virtual_memory()
     dashes, empty_dashes = get_dashes(mem.percent)
-    line = " Mem   [%s%s] %5s%% %6s / %s" % (
+    line = " Mem   [{}{}] {:>5}% {:>6} / {}".format(
         dashes,
         empty_dashes,
         mem.percent,
@@ -147,7 +149,7 @@ def print_header(procs_status, num_procs):
     # swap usage
     swap = psutil.swap_memory()
     dashes, empty_dashes = get_dashes(swap.percent)
-    line = " Swap  [%s%s] %5s%% %6s / %s" % (
+    line = " Swap  [{}{}] {:>5}% {:>6} / {}".format(
         dashes,
         empty_dashes,
         swap.percent,
@@ -160,15 +162,15 @@ def print_header(procs_status, num_procs):
     st = []
     for x, y in procs_status.items():
         if y:
-            st.append("%s=%s" % (x, y))
-    st.sort(key=lambda x: x[:3] in ('run', 'sle'), reverse=1)
-    printl(" Processes: %s (%s)" % (num_procs, ', '.join(st)))
+            st.append(f"{x}={y}")
+    st.sort(key=lambda x: x[:3] in {'run', 'sle'}, reverse=1)
+    printl(f" Processes: {num_procs} ({', '.join(st)})")
     # load average, uptime
     uptime = datetime.datetime.now() - datetime.datetime.fromtimestamp(
         psutil.boot_time()
     )
     av1, av2, av3 = psutil.getloadavg()
-    line = " Load average: %.2f %.2f %.2f  Uptime: %s" % (
+    line = " Load average: {:.2f} {:.2f} {:.2f}  Uptime: {}".format(
         av1,
         av2,
         av3,
@@ -180,9 +182,9 @@ def print_header(procs_status, num_procs):
 def refresh_window(procs, procs_status):
     """Print results on screen by using curses."""
     curses.endwin()
-    templ = "%-6s %-8s %4s %6s %6s %5s %5s %9s  %2s"
+    templ = "{:<6} {:<8} {:>4} {:>6} {:>6} {:>5} {:>5} {:>9}  {:>2}"
     win.erase()
-    header = templ % (
+    header = templ.format(
         "PID",
         "USER",
         "NI",
@@ -201,7 +203,7 @@ def refresh_window(procs, procs_status):
         # is expressed as: "mm:ss.ms"
         if p.dict['cpu_times'] is not None:
             ctime = datetime.timedelta(seconds=sum(p.dict['cpu_times']))
-            ctime = "%s:%s.%s" % (
+            ctime = "{}:{}.{}".format(
                 ctime.seconds // 60 % 60,
                 str(ctime.seconds % 60).zfill(2),
                 str(ctime.microseconds)[:2],
@@ -215,7 +217,7 @@ def refresh_window(procs, procs_status):
         if p.dict['cpu_percent'] is None:
             p.dict['cpu_percent'] = ''
         username = p.dict['username'][:8] if p.dict['username'] else ''
-        line = templ % (
+        line = templ.format(
             p.pid,
             username,
             p.dict['nice'],
