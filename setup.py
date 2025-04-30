@@ -186,20 +186,10 @@ def get_long_description():
 
 
 @contextlib.contextmanager
-def silenced_output(stream_name):
-    class DummyFile(io.BytesIO):
-        # see: https://github.com/giampaolo/psutil/issues/678
-        errors = "ignore"
-
-        def write(self, s):
-            pass
-
-    orig = getattr(sys, stream_name)
-    try:
-        setattr(sys, stream_name, DummyFile())
-        yield
-    finally:
-        setattr(sys, stream_name, orig)
+def silenced_output():
+    with contextlib.redirect_stdout(io.StringIO()):
+        with contextlib.redirect_stderr(io.StringIO()):
+            yield
 
 
 def missdeps(cmdline):
@@ -259,9 +249,9 @@ def unix_can_compile(c_code):
         # https://github.com/giampaolo/psutil/pull/1568
         if os.getenv('CC'):
             compiler.set_executable('compiler_so', os.getenv('CC'))
-        with silenced_output('stderr'):
-            with silenced_output('stdout'):
-                compiler.compile([f.name], output_dir=tempdir)
+        with silenced_output():
+            compiler.compile([f.name], output_dir=tempdir)
+        compiler.compile([f.name], output_dir=tempdir)
     except CompileError:
         return False
     else:
@@ -423,12 +413,12 @@ elif SUNOS:
     macros.append(("PSUTIL_SUNOS", 1))
     ext = Extension(
         'psutil._psutil_sunos',
-        sources=sources
-        + [
-            'psutil/_psutil_sunos.c',
-            'psutil/arch/solaris/v10/ifaddrs.c',
-            'psutil/arch/solaris/environ.c',
-        ],
+        sources=(
+            sources
+            + ["psutil/_psutil_sunos.c"]
+            + glob.glob("psutil/arch/sunos/*.c")
+            + glob.glob("psutil/arch/sunos/v10/*.c")
+        ),
         define_macros=macros,
         libraries=['kstat', 'nsl', 'socket'],
         # fmt: off
@@ -526,19 +516,19 @@ def main():
         classifiers=[
             'Development Status :: 5 - Production/Stable',
             'Environment :: Console',
-            'Environment :: Win32 (MS Windows)',
             'Intended Audience :: Developers',
             'Intended Audience :: Information Technology',
             'Intended Audience :: System Administrators',
-            'License :: OSI Approved :: BSD License',
             'Operating System :: MacOS :: MacOS X',
             'Operating System :: Microsoft :: Windows :: Windows 10',
+            'Operating System :: Microsoft :: Windows :: Windows 11',
             'Operating System :: Microsoft :: Windows :: Windows 7',
             'Operating System :: Microsoft :: Windows :: Windows 8',
             'Operating System :: Microsoft :: Windows :: Windows 8.1',
             'Operating System :: Microsoft :: Windows :: Windows Server 2003',
             'Operating System :: Microsoft :: Windows :: Windows Server 2008',
             'Operating System :: Microsoft :: Windows :: Windows Vista',
+            'Operating System :: Microsoft :: Windows',
             'Operating System :: Microsoft',
             'Operating System :: OS Independent',
             'Operating System :: POSIX :: AIX',
@@ -557,7 +547,6 @@ def main():
             'Topic :: Software Development :: Libraries :: Python Modules',
             'Topic :: Software Development :: Libraries',
             'Topic :: System :: Benchmark',
-            'Topic :: System :: Hardware :: Hardware Drivers',
             'Topic :: System :: Hardware',
             'Topic :: System :: Monitoring',
             'Topic :: System :: Networking :: Monitoring :: Hardware Watchdog',
