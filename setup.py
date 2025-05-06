@@ -70,8 +70,7 @@ from _common import SUNOS  # noqa: E402
 from _common import WINDOWS  # noqa: E402
 from _common import hilite  # noqa: E402
 
-WINODWS_PLATFORM = os.environ.get("VSCMD_ARG_TGT_ARCH", "")
-
+WINODWS_ARM64 = WINDOWS and setuptools.distutils.util.get_platform() == "win-arm64"
 
 PYPY = '__pypy__' in sys.builtin_module_names
 PY36_PLUS = sys.version_info[:2] >= (3, 6)
@@ -161,11 +160,11 @@ if setuptools and CP36_PLUS and (MACOS or LINUX) and not Py_GIL_DISABLED:
     py_limited_api = {"py_limited_api": True}
     options = {"bdist_wheel": {"py_limited_api": "cp36"}}
     macros.append(('Py_LIMITED_API', '0x03060000'))
-elif setuptools and CP37_PLUS and WINDOWS and not Py_GIL_DISABLED and setuptools.distutils.util.get_platform() == "win-arm64":
+elif setuptools and CP37_PLUS and WINDOWS_ARM64 and not Py_GIL_DISABLED:
     # pywin32 only has arm64 versions from cp310
     py_limited_api = {"py_limited_api": True}
-    options = {"bdist_wheel": {"py_limited_api": "cp310"}}
-    macros.append(('Py_LIMITED_API', '0x03100000'))
+    options = {"bdist_wheel": {"py_limited_api": "cp311"}}
+    macros.append(('Py_LIMITED_API', '0x03110000'))
 elif setuptools and CP37_PLUS and WINDOWS and not Py_GIL_DISABLED:
     # PyErr_SetFromWindowsErr / PyErr_SetFromWindowsErrWithFilename are
     # part of the stable API/ABI starting with CPython 3.7
