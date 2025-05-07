@@ -70,8 +70,6 @@ from _common import SUNOS  # noqa: E402
 from _common import WINDOWS  # noqa: E402
 from _common import hilite  # noqa: E402
 
-WINODWS_ARM64 = WINDOWS and setuptools.distutils.util.get_platform() == "win-arm64"
-
 PYPY = '__pypy__' in sys.builtin_module_names
 PY36_PLUS = sys.version_info[:2] >= (3, 6)
 PY37_PLUS = sys.version_info[:2] >= (3, 7)
@@ -160,7 +158,7 @@ if setuptools and CP36_PLUS and (MACOS or LINUX) and not Py_GIL_DISABLED:
     py_limited_api = {"py_limited_api": True}
     options = {"bdist_wheel": {"py_limited_api": "cp36"}}
     macros.append(('Py_LIMITED_API', '0x03060000'))
-elif setuptools and CP37_PLUS and WINDOWS_ARM64 and not Py_GIL_DISABLED:
+elif setuptools and CP37_PLUS and WINDOWS and setuptools.distutils.util.get_platform() == "win-arm64" and not Py_GIL_DISABLED:
     # pywin32 only has arm64 versions from cp310
     py_limited_api = {"py_limited_api": True}
     options = {"bdist_wheel": {"py_limited_api": "cp311"}}
