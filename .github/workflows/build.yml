@@ -54,7 +54,7 @@ jobs:
       env:
         CIBW_ARCHS: "${{ matrix.arch }}"
         CIBW_ENABLE: "${{ startsWith(github.ref, 'refs/tags/') && '' || 'cpython-prerelease' }}"
-        CIBW_SKIP_WINDOWS: "cp39-win_arm64"
+        CIBW_SKIP_WINDOWS: "cp39-win_arm64 cp310-win_arm64"
         CIBW_BEFORE_TEST: >
           python -m pip install packaging &&
           python -c "from packaging import tags; print([(t.interpreter, t.abi, t.platform) for t in tags.sys_tags()])"
