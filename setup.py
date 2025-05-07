@@ -161,8 +161,8 @@ if setuptools and CP36_PLUS and (MACOS or LINUX) and not Py_GIL_DISABLED:
 elif setuptools and CP37_PLUS and WINDOWS and setuptools.distutils.util.get_platform() == "win-arm64" and not Py_GIL_DISABLED:
     # pywin32 only has arm64 versions from cp310
     py_limited_api = {"py_limited_api": True}
-    options = {"bdist_wheel": {"py_limited_api": "cp311"}}
-    macros.append(('Py_LIMITED_API', '0x03110000'))
+    options = {"bdist_wheel": {"py_limited_api": "cp37"}}
+    macros.append(('Py_LIMITED_API', '0x03070000'))
 elif setuptools and CP37_PLUS and WINDOWS and not Py_GIL_DISABLED:
     # PyErr_SetFromWindowsErr / PyErr_SetFromWindowsErrWithFilename are
     # part of the stable API/ABI starting with CPython 3.7
