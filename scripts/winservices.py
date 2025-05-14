@@ -41,7 +41,9 @@ if os.name != 'nt':
 
 
 def main():
-    for service in psutil.win_service_iter() if service._name != 'WaaSMedicSvc':
+    for service in psutil.win_service_iter():
+        if service._name != 'WaaSMedicSvc':
+            continue
         print(f"service: {service._name} ({service._display_name})")
         info = service.as_dict()
         print(f"{info['name']!r} ({info['display_name']!r})")
