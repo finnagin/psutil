@@ -885,7 +885,9 @@ class TestServices(PsutilTestCase):
             "stop_pending",
             "stopped",
         }
-        for serv in psutil.win_service_iter() if serv._name != 'WaaSMedicSvc':
+        for serv in psutil.win_service_iter():
+            if serv._name == 'WaaSMedicSvc':
+                continue
             data = serv.as_dict()
             assert isinstance(data['name'], str)
             assert data['name'].strip()
